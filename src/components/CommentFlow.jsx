@@ -1,4 +1,3 @@
-// CommentFlow.js
 import React, { useState, useEffect } from 'react';
 import Comment from './Comment';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -22,12 +21,14 @@ const CommentFlow = ({ data }) => {
     }, [comments]);
 
     const handleVote = (id, type) => {
-        setComments((prevComments) =>
-            prevComments.map((comment) =>
-                comment.id === id
-                    ? { ...comment, score: type === 'up' ? comment.score + 1 : comment.score - 1 }
-                    : comment
-            ).sort((a, b) => b.score - a.score)
+        setComments(prevComments =>
+            prevComments
+                .map(comment =>
+                    comment.id === id
+                        ? { ...comment, score: type === 'up' ? comment.score + 1 : comment.score - 1 }
+                        : comment
+                )
+                .sort((a, b) => b.score - a.score)
         );
     };
 
@@ -41,87 +42,78 @@ const CommentFlow = ({ data }) => {
             replies: [],
         };
 
-        const addReplyRecursively = (commentsList) => {
-            return commentsList.map(comment => {
+        const addReplyRecursively = (list) => {
+            return list.map(comment => {
                 if (comment.id === parentId) {
                     return {
                         ...comment,
                         replies: [...(comment.replies || []), newReply],
                     };
                 }
-
-                if (comment.replies && comment.replies.length > 0) {
+                if (comment.replies?.length) {
                     return {
                         ...comment,
                         replies: addReplyRecursively(comment.replies),
                     };
                 }
-
                 return comment;
             });
         };
 
-        setComments(prevComments =>
-            addReplyRecursively(prevComments).sort((a, b) => b.score - a.score)
-        );
+        setComments(prevComments => addReplyRecursively(prevComments));
     };
+
     const handleEdit = (id, content) => {
-        const updateComment = (comments) =>
-            comments.map((comment) => {
+        const updateContent = (list) =>
+            list.map(comment => {
                 if (comment.id === id) {
                     return { ...comment, content };
                 }
-                if (comment.replies && comment.replies.length > 0) {
+                if (comment.replies?.length) {
                     return {
                         ...comment,
-                        replies: updateComment(comment.replies),
+                        replies: updateContent(comment.replies),
                     };
                 }
                 return comment;
             });
 
-        setComments((prevComments) => updateComment(prevComments));
-    };
-
-    const deleteCommentById = (comments, idToDelete) => {
-        return comments
-            .map(comment => {
-                if (comment.id === idToDelete) {
-                    return null; // Remove this comment
-                }
-
-                // Recursively check inside replies
-                const newReplies = comment.replies ? deleteCommentById(comment.replies, idToDelete) : [];
-
-                return {
-                    ...comment,
-                    replies: newReplies,
-                };
-            })
-            .filter(Boolean); // Remove nulls
+        setComments(prevComments => updateContent(prevComments));
     };
 
     const handleDelete = (id) => {
-        setComments(prevComments => deleteCommentById(prevComments, id));
-    };
+        const deleteRecursively = (list, idToDelete) =>
+            list
+                .map(comment => {
+                    if (comment.id === idToDelete) return null;
+                    return {
+                        ...comment,
+                        replies: deleteRecursively(comment.replies || [], idToDelete),
+                    };
+                })
+                .filter(Boolean);
 
+        setComments(prevComments => deleteRecursively(prevComments, id));
+    };
 
     const addComment = () => {
-        if (newComment.trim()) {
-            const newCommentObj = {
-                id: Date.now(),
-                content: newComment,
-                timestamp: Date.now(),
-                score: 0,
-                user: data.currentUser,
-                replies: [],
-            };
-            setComments((prevComments) => [newCommentObj, ...prevComments].sort((a, b) => b.score - a.score));
-            setNewComment('');
-        }
+        if (!newComment.trim()) return;
+
+        const newCommentObj = {
+            id: Date.now(),
+            content: newComment,
+            timestamp: Date.now(),
+            score: 0,
+            user: data.currentUser,
+            replies: [],
+        };
+
+        // Just append at the end (no sorting)
+        setComments(prevComments => [...prevComments, newCommentObj]);
+        setNewComment('');
     };
 
-    if (loading) return <div className="text-center text-grey-500">Loading...</div>;
+    if (loading) return <div className="text-center text-gray-500">Loading...</div>;
     if (error) return <div className="text-center text-pink-400">Error: {error.message}</div>;
 
     return (
@@ -146,6 +138,7 @@ const CommentFlow = ({ data }) => {
                     </motion.div>
                 ))}
             </AnimatePresence>
+
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -176,7 +169,6 @@ const CommentFlow = ({ data }) => {
                     </div>
                 </div>
             </motion.div>
-
         </div>
     );
 };
