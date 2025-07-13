@@ -83,18 +83,28 @@ const CommentFlow = ({ data }) => {
         setComments((prevComments) => updateComment(prevComments));
     };
 
+    const deleteCommentById = (comments, idToDelete) => {
+        return comments
+            .map(comment => {
+                if (comment.id === idToDelete) {
+                    return null; // Remove this comment
+                }
+
+                // Recursively check inside replies
+                const newReplies = comment.replies ? deleteCommentById(comment.replies, idToDelete) : [];
+
+                return {
+                    ...comment,
+                    replies: newReplies,
+                };
+            })
+            .filter(Boolean); // Remove nulls
+    };
 
     const handleDelete = (id) => {
-        setComments((prevComments) =>
-            prevComments
-                .filter((comment) => comment.id !== id)
-                .map((comment) => ({
-                    ...comment,
-                    replies: comment.replies?.filter((reply) => reply.id !== id),
-                }))
-                .sort((a, b) => b.score - a.score)
-        );
+        setComments(prevComments => deleteCommentById(prevComments, id));
     };
+
 
     const addComment = () => {
         if (newComment.trim()) {
