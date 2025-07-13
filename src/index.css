@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+
+body {
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+    background-color: #fefbfb;
+    background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23f3c' fill-opacity='0.05'%3E%3Cpath d='M60 0L65 20L85 20L70 35L75 55L60 45L45 55L50 35L35 20L55 20Z'/%3E%3C/g%3E%3C/svg%3E");
+    background-repeat: repeat;
+    animation: meme-drift 15s linear infinite;
+}
+
+@keyframes meme-drift {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 120px 120px;
+    }
+}
+
+
+@theme {
+    --font-display: "Rubik", "sans-serif";
+}
+
+.filter-purple {
+    filter: brightness(0) saturate(100%) invert(32%) sepia(94%) saturate(1232%) hue-rotate(230deg) brightness(98%) contrast(90%);
+}
+
+.filter-pink {
+    filter: brightness(0) saturate(100%) invert(44%) sepia(80%) saturate(498%) hue-rotate(300deg) brightness(93%) contrast(95%);
+}
