@@ -125,7 +125,7 @@ const CommentFlow = ({ data }) => {
     if (error) return <div className="text-center text-pink-400">Error: {error.message}</div>;
 
     return (
-        <div className="container mx-auto p-4 max-w-3xl font-display">
+        <div className="container mx-auto p-4 sm:px-4 px-2 max-w-3xl font-display">
             <AnimatePresence>
                 {comments.map((comment) => (
                     <motion.div
@@ -146,28 +146,37 @@ const CommentFlow = ({ data }) => {
                     </motion.div>
                 ))}
             </AnimatePresence>
-
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
-                className="mt-4 flex gap-4 items-start"
+                className="mt-4 bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex items-start gap-4"
             >
-                <textarea
-                    value={newComment}
-                    onChange={(e) => setNewComment(e.target.value)}
-                    className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-600 bg-grey-50 text-grey-800"
-                    placeholder="Add a comment..."
-                    aria-label="Add a new comment"
+                <img
+                    src={data.currentUser.image.png}
+                    alt={data.currentUser.username}
+                    className="w-10 h-10 rounded-full object-cover mt-1"
                 />
-                <button
-                    onClick={addComment}
-                    className="bg-purple-600 cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-purple-800 focus:outline-none"
-                    aria-label="Send new comment"
-                >
-                    Send
-                </button>
+                <div className="flex-1 flex flex-col gap-3">
+                    <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        className="w-full min-h-[80px] resize-none p-3 text-sm text-gray-800 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-400 shadow-inner"
+                        placeholder="Add a comment..."
+                        aria-label="Add a new comment"
+                    />
+                    <div className="flex justify-end">
+                        <button
+                            onClick={addComment}
+                            className="bg-purple-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-all shadow-md"
+                            aria-label="Send new comment"
+                        >
+                            Send
+                        </button>
+                    </div>
+                </div>
             </motion.div>
+
         </div>
     );
 };

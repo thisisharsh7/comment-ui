@@ -61,11 +61,11 @@ const Comment = ({ comment, currentUser, onReply, onVote, onEdit, onDelete }) =>
                     <div className="flex items-center justify-between flex-wrap sm:flex-nowrap">
                         <div className="flex flex-wrap items-center gap-2">
                             <UserAvatar image={comment.user.image} username={comment.user.username} />
-                            <span className="font-bold text-grey-800">{comment.user.username}</span>
+                            <span className="font-bold text-gray-800">{comment.user.username}</span>
                             {currentUser.username === comment.user.username && (
                                 <span className="bg-purple-600 text-white text-xs px-2 py-0.5 rounded-md uppercase">you</span>
                             )}
-                            <span className="text-grey-500 text-sm">{timeSince}</span>
+                            <span className="text-gray-500 text-sm">{timeSince}</span>
                         </div>
 
                         <div className="hidden sm:flex  space-x-4 text-sm mt-2 sm:mt-0">
@@ -107,13 +107,18 @@ const Comment = ({ comment, currentUser, onReply, onVote, onEdit, onDelete }) =>
                             )}
                         </div>
                     </div>
+
                     {isEditing ? (
-                        <div className="mt-3 space-y-2 w-full">
+                        <div className="mt-4 w-full bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
+                            <label htmlFor="edit-comment" className="text-sm text-gray-600 font-medium">
+                                Editing your comment
+                            </label>
                             <textarea
+                                id="edit-comment"
                                 value={editContent}
                                 onChange={(e) => setEditContent(e.target.value)}
-                                className="w-full p-3 rounded-xl border border-grey-200 bg-grey-50 focus:outline-none focus:ring-2 focus:ring-purple-600 text-sm resize-none shadow-sm"
-                                rows={4}
+                                className="w-full min-h-[100px] resize-none rounded-lg border border-gray-300 bg-gray-50 p-3 text-sm text-gray-800 shadow-inner focus:border-purple-500 focus:ring-2 focus:ring-purple-300 focus:outline-none transition"
+                                placeholder="Edit your comment..."
                                 aria-label="Edit comment"
                             />
                             <div className="flex justify-end">
@@ -122,15 +127,16 @@ const Comment = ({ comment, currentUser, onReply, onVote, onEdit, onDelete }) =>
                                         onEdit(comment.id, editContent);
                                         setIsEditing(false);
                                     }}
-                                    className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl transition-all duration-200"
-                                    aria-label="Save edit"
+                                    className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all shadow-md"
+                                    aria-label="Save edited comment"
                                 >
-                                    Edit
+                                    Save Changes
                                 </button>
                             </div>
                         </div>
+
                     ) : (
-                        <p className="text-grey-800 mt-2 whitespace-pre-wrap">{displayContent}</p>
+                        <p className="text-gray-800 mt-2 whitespace-pre-wrap">{displayContent}</p>
                     )}
 
                     <AnimatePresence>
@@ -142,31 +148,40 @@ const Comment = ({ comment, currentUser, onReply, onVote, onEdit, onDelete }) =>
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                <div className="flex flex-col sm:flex-row gap-3 sm:items-start">
+                                <div className="w-full bg-white rounded-xl shadow-sm border border-gray-200 p-4 space-y-3">
+                                    <span className="text-sm text-gray-500">
+                                        Replying to <span className="font-semibold text-gray-800">@{comment.user.username}</span>
+                                    </span>
                                     <textarea
                                         value={replyContent}
                                         onChange={(e) => setReplyContent(e.target.value)}
-                                        className="w-full min-h-[80px] resize-none rounded-xl border border-gray-300 bg-gray-50 p-3 text-sm text-gray-800 shadow-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-300 focus:outline-none transition"
-                                        placeholder="Write your reply here..."
+                                        className="w-full min-h-[80px] resize-none rounded-lg border border-gray-300 bg-gray-50 p-3 text-sm text-gray-800 shadow-inner focus:border-purple-500 focus:ring-2 focus:ring-purple-300 focus:outline-none transition"
+                                        placeholder={`@${comment.user.username} `}
                                         aria-label="Reply input"
                                     />
-                                    <button
-                                        onClick={() => {
-                                            onReply(comment.id, replyContent);
-                                            setReplyContent('');
-                                            setIsReplying(false);
-                                        }}
-                                        className="self-end sm:self-auto shrink-0 bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-xl text-sm font-medium transition-all shadow-md"
-                                        aria-label="Send reply"
-                                    >
-                                        Reply
-                                    </button>
+                                    <div className="flex justify-end">
+                                        <button
+                                            onClick={() => {
+                                                const trimmed = replyContent.trim();
+                                                if (trimmed) {
+                                                    const finalReply = `@${comment.user.username} ${trimmed}`;
+                                                    onReply(comment.id, finalReply);
+                                                    setReplyContent('');
+                                                    setIsReplying(false);
+                                                }
+                                            }}
+                                            className="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all shadow-md"
+                                            aria-label="Send reply"
+                                        >
+                                            Reply
+                                        </button>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
-
                     </AnimatePresence>
-                    <div className='sm:hidden flex justify-between mt-2'>
+
+                    <div className="sm:hidden flex justify-between mt-2">
                         <VoteButton score={comment.score} onVote={(type) => onVote(comment.id, type)} />
                         <div className="flex space-x-4 text-sm sm:mt-0">
                             {currentUser.username === comment.user.username ? (
@@ -208,7 +223,6 @@ const Comment = ({ comment, currentUser, onReply, onVote, onEdit, onDelete }) =>
                         </div>
                     </div>
 
-
                     {comment.replies && comment.replies.length > 0 && (
                         <div className="border-l-2 border-gray-100 pl-4 sm:pl-10 mt-4 space-y-4">
                             <AnimatePresence>
@@ -228,12 +242,7 @@ const Comment = ({ comment, currentUser, onReply, onVote, onEdit, onDelete }) =>
                             </AnimatePresence>
                         </div>
                     )}
-
-
                 </div>
-
-
-
             </div>
 
             {showModal && (
